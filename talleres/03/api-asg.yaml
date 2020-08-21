@@ -17,12 +17,26 @@ Resources:
       GroupName: MythicalMysfitsLB
       GroupDescription: Load Balancer
       # Ingress rules
+      SecurityGroupIngress:
+       - IpProtocol: tcp
+         Fromport: 80
+         ToPort: 80
+         CidrIp: 0.0.0.0/0
   InstanceSG:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupName: MythicalMysfitsInstance
       GroupDescription: Instances
       # Ingress rules
+      SecurityGroupIngress:
+       - IpProtocol: tcp
+         Fromport: 8000
+         ToPort: 8000
+         CidrIp: 0.0.0.0/0
+       - IpProtocol: tcp
+         Fromport: 22
+         ToPort: 22
+         CidrIp: 0.0.0.0/0
   LoadBalancer:
     Type: AWS::ElasticLoadBalancing::LoadBalancer
     Properties:
@@ -31,7 +45,18 @@ Resources:
         - !GetAtt LoadBalancerSG.GroupId
       AvailabilityZones: !GetAZs
       # Listeners
+      Listeners:
+        - InstacePort: 8000
+          InstanceProtocol: TCP
+          LoadBalancerPort: 80
+          Protocol: TCP
       # HealthCheck
+      HealthCheck:
+        HealthyThreshold: 2
+        Interval: 30
+        Target: "TCP:8000"
+        Timeout: 5
+        UnhealthyThreshold: 2
   LaunchConfiguration:
     Type: AWS::AutoScaling::LaunchConfiguration
     Properties:
@@ -44,4 +69,30 @@ Resources:
       SecurityGroups:
         - !GetAtt InstanceSG.GroupId
       # UserData
+      UserData:
+        Fn::Base64: |
+          #!/bin/bash -xe
+          yum install -y python37 git
+          curl -O https://bootstrap.pypa.io/get-pip.py
+          python3 get-pip.py
+          git clone https://github.com/eloyvega/bootcamp-module-devops.git
+          cd bootcamp-module-devops/backend/
+          pip install -r requirements.txt
+          nohup gunicorn -w 3 -b 0.0.0.0:8000 app:app &
+      
   # AutoScalingGroup:
+  AutoScalingGroup:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      AvailabilityZones: !GetAZs
+      DesiredCapacity: 1
+      MinSize: 1
+      MaxSize: 1
+      LaunchConfiguration:
+        ref: LaunchConfiguration
+      LoadBalancerNames:
+        ref: LoadBalancer
+      Tags:
+        - Key: name
+          value: autoScaling-mythical
+          PropagateAtLaunch: true
