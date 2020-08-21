@@ -79,9 +79,18 @@ Resources:
   AutoScalingGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
     # CreationPolicy:
+    CreationPolicy:
+      ResourceSignal:
+        Count: 2
+        Timeout: PT10M
 
     # UpdatePolicy:
-
+    UpdatePolicy: 
+      AutoScalingRollingUpdate:
+        MinInstancesInService: 1
+        MaxBatchSize: 2
+        WaitOnResourceSignals: 'true'
+        PauseTime: PT5M
     Properties:
       AvailabilityZones: !GetAZs
       LaunchConfigurationName: !Ref LaunchConfiguration
