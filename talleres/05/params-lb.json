@@ -1,13 +1,13 @@
 [{
         "ParameterKey": "VpcId",
-        "ParameterValue": ""
+        "ParameterValue": "vpc-04f00f97f63fd3998"
     },
     {
         "ParameterKey": "Subnet01",
-        "ParameterValue": ""
+        "ParameterValue": "subnet-00a5563eb8df131f2"
     },
     {
         "ParameterKey": "Subnet02",
-        "ParameterValue": ""
+        "ParameterValue": "subnet-0418dd27c4ac8690f"
     }
 ]
