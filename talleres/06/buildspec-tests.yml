@@ -2,10 +2,13 @@ version: 0.2
 
 phases:
   install:
-    # Definir el runtime adecuado
+    runtime-versions:
+      python: 3.7
   pre_build:
     commands:
       - echo Instalar las dependencias de Python
+      - pip install -U pytest
   build:
     commands:
       - echo Ejecutar comando de pruebas pytest
+      - pytest
