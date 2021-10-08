@@ -7,8 +7,10 @@ phases:
   pre_build:
     commands:
       - echo Instalar las dependencias de Python
-      - pip install -U pytest
+      - cd backend
+      - pip install -r requirements.txt
   build:
     commands:
       - echo Ejecutar comando de pruebas pytest
+      - cd backend
       - pytest
